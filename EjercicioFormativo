@@ -1,0 +1,230 @@
+import java.io.*;
+
+public class PrincipalElecciones {
+
+    static File FICHERO = new File("candidatos.txt");
+
+    public static void añadirCandidato() throws IOException {
+
+        Candidato c = new Candidato();
+        c.pedirCandidato();
+
+        c.escribirFichero(FICHERO, true);
+
+        System.out.println("Candidato guardado correctamente.");
+    }
+
+    public static void verCandidatosPartido() throws IOException {
+
+        if (!FICHERO.exists()) {
+            System.out.println("No existe el fichero de candidatos.");
+            return;
+        }
+
+        String partido = Lecturas.leerOpcion(
+                "Introduce el partido:",
+                new String[]{
+                        "Partido JavaScriptero",
+                        "Alianza Java Enterprise",
+                        "P.C.D.",
+                        "Movimiento IA-First"
+                });
+
+        FileReader fr = new FileReader(FICHERO);
+        BufferedReader br = new BufferedReader(fr);
+
+        String linea;
+        int total = 0;
+        boolean hay = false;
+
+        linea = br.readLine();
+
+        while (linea != null) {
+
+            Candidato c = new Candidato();
+            c.leerCandidato(linea);
+
+            if (c.getPartido().equalsIgnoreCase(partido)) {
+
+                System.out.println(c.getNombre() + " - " + c.getVotos());
+                total += c.getVotos();
+                hay = true;
+            }
+
+            linea = br.readLine();
+        }
+
+        br.close();
+
+        if (!hay) {
+            System.out.println("No hay candidatos de ese partido.");
+        } else {
+            System.out.println("Total votos del partido: " + total);
+        }
+    }
+
+    public static void actualizarVotos() throws IOException {
+
+        if (!FICHERO.exists()) {
+            System.out.println("No existe el fichero.");
+            return;
+        }
+
+        int id = Lecturas.leerEntero("Introduce ID del candidato: ");
+
+        File temp = new File("temp.txt");
+
+        FileReader fr = new FileReader(FICHERO);
+        BufferedReader br = new BufferedReader(fr);
+
+        boolean encontrado = false;
+
+        String linea = br.readLine();
+
+        while (linea != null) {
+
+            Candidato c = new Candidato();
+            c.leerCandidato(linea);
+
+            if (c.getId() == id) {
+
+                encontrado = true;
+
+                int nuevosVotos;
+
+                do {
+                    nuevosVotos = Lecturas.leerEntero("Introduce nuevos votos: ");
+
+                    if (nuevosVotos < c.getVotos()) {
+                        System.out.println("Los votos no pueden ser menores que los actuales.");
+                    }
+
+                } while (nuevosVotos < c.getVotos());
+
+                c.setVotos(nuevosVotos);
+            }
+
+            c.escribirFichero(temp, true);
+
+            linea = br.readLine();
+        }
+
+        br.close();
+
+        if (!encontrado) {
+            System.out.println("ID no encontrado.");
+            temp.delete();
+        } else {
+
+            FICHERO.delete();
+            temp.renameTo(FICHERO);
+
+            System.out.println("Votos actualizados.");
+        }
+    }
+
+    public static void exportarActa() throws IOException {
+
+        if (!FICHERO.exists()) {
+            System.out.println("No existe el fichero de candidatos.");
+            return;
+        }
+
+        File acta = new File("acta_final.txt");
+
+        FileReader fr = new FileReader(FICHERO);
+        BufferedReader br = new BufferedReader(fr);
+
+        PrintWriter pw = new PrintWriter(new FileWriter(acta));
+
+        String linea;
+
+        int total = 0;
+
+        String ganador = "";
+        int maxVotos = -1;
+
+        pw.println("RESULTADOS ELECCIONES\n");
+
+        linea = br.readLine();
+
+        while (linea != null) {
+
+            Candidato c = new Candidato();
+            c.leerCandidato(linea);
+
+            pw.println(c.getNombre() + " - " + c.getVotos());
+
+            total += c.getVotos();
+
+            if (c.getVotos() > maxVotos) {
+                maxVotos = c.getVotos();
+                ganador = c.getNombre();
+            }
+
+            linea = br.readLine();
+        }
+
+        pw.println("\nTOTAL VOTOS: " + total);
+        pw.println("GANADOR: " + ganador + " con " + maxVotos + " votos");
+
+        pw.close();
+        br.close();
+
+        System.out.println("Acta final creada.");
+    }
+
+    public static int menu() {
+
+        int op;
+
+        do {
+
+            System.out.println("\n--- ELECCIONES PROGRAMADORES CYL ---");
+            System.out.println("1. Añadir candidato");
+            System.out.println("2. Ver candidatos de un partido");
+            System.out.println("3. Actualizar votos");
+            System.out.println("4. Exportar acta final");
+            System.out.println("5. Salir");
+
+            op = Lecturas.leerEntero("Opcion: ");
+
+        } while (op < 1 || op > 5);
+
+        return op;
+    }
+
+    public static void main(String[] args) throws IOException {
+
+        int op;
+
+        do {
+
+            op = menu();
+
+            switch (op) {
+
+                case 1:
+                    añadirCandidato();
+                    break;
+
+                case 2:
+                    verCandidatosPartido();
+                    break;
+
+                case 3:
+                    actualizarVotos();
+                    break;
+
+                case 4:
+                    exportarActa();
+                    break;
+
+                case 5:
+                    System.out.println("Saliendo...");
+                    break;
+            }
+
+        } while (op != 5);
+    }
+}
