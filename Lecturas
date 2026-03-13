@@ -1,0 +1,55 @@
+import java.io.*;
+
+public class Lecturas {
+
+    static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+    public static String leerString(String mensaje) {
+
+        String s = "";
+
+        try {
+            System.out.print(mensaje);
+            s = br.readLine();
+        } catch (Exception e) {}
+
+        return s;
+    }
+
+    public static int leerEntero(String mensaje) {
+
+        int n = 0;
+
+        try {
+            System.out.print(mensaje);
+            n = Integer.parseInt(br.readLine());
+        } catch (Exception e) {}
+
+        return n;
+    }
+
+    public static String leerOpcion(String mensaje, String[] opciones) {
+
+        String valor;
+        boolean valido = false;
+
+        do {
+
+            valor = leerString(mensaje);
+
+            for (String op : opciones) {
+
+                if (op.equalsIgnoreCase(valor)) {
+                    valor = op;
+                    valido = true;
+                }
+            }
+
+            if (!valido)
+                System.out.println("Opción no válida.");
+
+        } while (!valido);
+
+        return valor;
+    }
+}
