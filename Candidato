@@ -1,0 +1,74 @@
+import java.io.*;
+
+public class Candidato {
+
+    private int id;
+    private String nombre;
+    private String partido;
+    private int votos;
+
+    public void pedirCandidato() {
+
+        this.id = Lecturas.leerEntero("ID: ");
+
+        this.nombre = Lecturas.leerString("Nombre: ");
+
+        this.partido = Lecturas.leerOpcion(
+                "Partido: ",
+                new String[]{
+                        "Partido JavaScriptero",
+                        "Alianza Java Enterprise",
+                        "P.C.D.",
+                        "Movimiento IA-First"
+                });
+
+        do {
+
+            this.votos = Lecturas.leerEntero("Votos: ");
+
+            if (votos < 0)
+                System.out.println("Los votos no pueden ser negativos.");
+
+        } while (votos < 0);
+    }
+
+    public void escribirFichero(File f, boolean añadir) throws IOException {
+
+        FileWriter fw = new FileWriter(f, añadir);
+        PrintWriter pw = new PrintWriter(fw);
+
+        pw.println(id + "-" + nombre + "-" + partido + "-" + votos);
+
+        pw.close();
+    }
+
+    public void leerCandidato(String linea) {
+
+        String[] datos = linea.split("-");
+
+        this.id = Integer.parseInt(datos[0]);
+        this.nombre = datos[1];
+        this.partido = datos[2];
+        this.votos = Integer.parseInt(datos[3]);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public String getPartido() {
+        return partido;
+    }
+
+    public int getVotos() {
+        return votos;
+    }
+
+    public void setVotos(int votos) {
+        this.votos = votos;
+    }
+}
